@@ -1,28 +1,29 @@
 var React = require('react');
-var rssTree = require('rssTree.js');
+var Baobab = require('baobab');
+var rssTree = require('./rssTree.js');
 
-console.log(feedsCursor);
-
+console.log(rssTree);
+// console.log(Baobab);
 
 var App = React.createClass({
 	getInitialState: function(){
 		return{
-			feed: 'this shit sucks',
-			fname: '',
+			feedname: 'this shit sucks',
+			feedlink: '',
 			id: 0
 		}
 	},
 	update: function(fdata){
 		this.setState({
-			feed: fdata.feed,
-			fname: fdata.fname,
+			feedlink: fdata.feedlink,
+			feedname: fdata.feedname,
 			id: this.state.id + 1
 		});
-		FEEDS.push({feedlink: fdata.fname, feedname: fdata.feed, id: this.state.id});
-		console.log(FEEDS);
+		rssTree.push({name: fdata.feedname, url: fdata.feedlink, id: this.state.id + 1});
+
 	},
 	render: function(){
-		return(
+		return (
 			<div className="container">
 				<AddForm onFeedSubmit={this.update}/>
 				<label>{this.state.id}</label>
@@ -41,26 +42,27 @@ var InputAdd = React.createClass({
 var AddForm = React.createClass({
 	handleSubmit: function(e) {
 	    e.preventDefault();
-	    console.log(React.findDOMNode)
-	    var feed = React.findDOMNode(this.refs.feed).value.trim();
-	    var fname = React.findDOMNode(this.refs.fname).value.trim();
-	    if (!feed || !fname) {
+
+	    var feedlink = React.findDOMNode(this.refs.feedlink).value.trim();
+	    var feedname = React.findDOMNode(this.refs.feedname).value.trim();
+	    if (!feedlink || !feedname) {
 	      return;
 	    }
-	    this.props.onFeedSubmit({feed: feed, fname: fname});
-	    React.findDOMNode(this.refs.feed).value = '';
-	    React.findDOMNode(this.refs.fname).value = '';
+	    this.props.onFeedSubmit({feedlink: feedlink, feedname: feedname});
+	    React.findDOMNode(this.refs.feedlink).value = '';
+	    React.findDOMNode(this.refs.feedname).value = '';
 	},
 	render: function(){
 		return(
 			<div>
-				<InputAdd ref="feed" />
-				<InputAdd ref="fname" />
+				<InputAdd ref="feedname" />
+				<InputAdd ref="feedlink" />
 				<button onClick={this.handleSubmit}>Save</button>
 			</div>
 		);
 	}
 });
+
 var FeedsList = React.createClass({
 	render: function(){
 		var rows = [];
@@ -74,11 +76,16 @@ var FeedsList = React.createClass({
 		);
 	}
 });
+
 var FeedsRow = React.createClass({
 	render: function() {
-        var name = this.props.feed.feedname;
+        var name = this.props.feed.name;
+				var url = this.props.feed.url;
         return (
-            <button>{name}</button>
+						<div>
+	            <button>{name}</button>
+							<a href={"" + url}>{url}</a>
+						</div>
         );
     }
 });
@@ -86,19 +93,18 @@ var FeedsRow = React.createClass({
 
 var ContentBox = React.createClass({
 	getInitialState: function(){
-		return{
+		return {
 			id: 0
 		}
 	},
 	render: function(){
 		return(
 			<div>
-			<FeedsList feeds={FEEDS} /> 
-			<p>{this.state.id}</p>
+				<FeedsList feeds={rssTree} />
+				<p>{this.state.id}</p>
 			</div>
 		);
 	}
 });
 var FEEDS = [];
-
 module.exports = App;
